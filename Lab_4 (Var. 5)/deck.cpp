@@ -16,8 +16,6 @@ Deck::~Deck() {
 	for (int i = 0; i < 4; i++)
 		delete[] cards[i];
 	delete[] cards;
-
-	wprintf(L"\nDelete the Deck\n");
 }
 
 int Deck::getCountOfCard() { return countOfCard; }

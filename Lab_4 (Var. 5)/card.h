@@ -5,6 +5,7 @@ using namespace std;
 
 class Card
 {
+	friend void friendPrintCard(Card&);
 public:
 	Card();
 	Card(wstring scoreCard, wchar_t suitCard);
@@ -18,8 +19,6 @@ public:
 
 	void setScoreCard(wstring score);
 	void setSuitCard(wchar_t suit);
-
-	void printCard();
 
 private:
 	wstring _scoreCard;

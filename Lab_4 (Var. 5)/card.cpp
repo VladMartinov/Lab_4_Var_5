@@ -40,8 +40,6 @@ Card& Card::operator=(const Card& copyCard) {
 void Card::setScoreCard(wstring _score) { _scoreCard = _score; }
 void Card::setSuitCard(wchar_t _suit) { _suitCard = _suit; }
 
-void Card::printCard() {
-	wprintf(L"  %s%c", _scoreCard.c_str(), _suitCard);
+void friendPrintCard(Card &a) {
+	wprintf(L"  %s%c", a._scoreCard.c_str(), a._suitCard);
 }
-
-
