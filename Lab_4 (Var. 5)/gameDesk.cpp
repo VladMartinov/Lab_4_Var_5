@@ -6,6 +6,8 @@
 
 using namespace std;
 
+
+// Конструктор с выделением памяти для объекта всех нужных классов
 GameDesk::GameDesk() {
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
@@ -19,11 +21,14 @@ GameDesk::GameDesk() {
 
 }
 
+// Деструктор ( класс Player и Banker очищаются сами автоматически)
 GameDesk::~GameDesk() {
 	delete[] decks;
 }
 
+// Главная функция класса
 void GameDesk::startTheGame() {
+	// Инициализируем все нужные флаги и переменные для игры
 	int summeryPlayer = 0;
 	int summeryBanker = 0;
 
@@ -36,7 +41,7 @@ void GameDesk::startTheGame() {
 
 	while (flagGame) {
 
-
+		// Если у вас на счету больше 0 то можно и поиграть
 		if (player.getMoney() > 0) {
 			wprintf(L"\n---- You want to start the Game (1-Yes, 2-No) ----\n");
 			int answer = 0;
@@ -45,6 +50,7 @@ void GameDesk::startTheGame() {
 
 			if (answer == 1) {
 
+				// Если это уже не первая игра забераем все карты у диллера и игрока и берем новую колоду
 				if (gameNum > 0) {
 
 					for (int i = 0; i < 4; i++) {
@@ -67,8 +73,15 @@ void GameDesk::startTheGame() {
 				while (flagOfBet) {
 					cin >> bet;
 
+					// Вводим ставку 
 					if (bet <= 0)
+					{
 						wprintf(L"\n---- (Error) Your bet = 0 or smaller then 0!\n");
+
+						// Чтобы можно повторно было ввести в cin
+						std::cin.clear(); // clear bad input flag
+						std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard input
+					}
 					else {
 						double setBet = player.placeABet(bet);
 						if (setBet > 0) {
@@ -85,6 +98,7 @@ void GameDesk::startTheGame() {
 
 				srand(time(NULL));
 
+				// Логи показывающие, что проиходит на поле игры
 				wprintf(L"\n ==== LOGS ==== \n");
 				int randDeck = rand() % 4;
 				player.getTheCard(banker.issueACard(decks[randDeck]));
@@ -104,11 +118,14 @@ void GameDesk::startTheGame() {
 				flagOfProces = true;
 				while (flagOfProces) {
 					try {
-						if (player.sumOfCard(true) > 21) {
+
+						summeryPlayer = player.sumOfCard(true);
+						// Если мы набрали больше 21 выбрасываем exception 
+						if (summeryPlayer > 21) {
 							throw 1;
 						}
 
-
+						// Выводим кол-во карт в колодах
 						wprintf(L"\nDecks: ");
 						wprintf(L" [%i] [%i] [%i] [%i]",
 							decks[0].getCountOfCard(),
@@ -116,9 +133,11 @@ void GameDesk::startTheGame() {
 							decks[2].getCountOfCard(),
 							decks[3].getCountOfCard());
 
+						// Выводим все карты игрока и диллера (false для того чтобы А не предлагало выбирать каждый раз 11 или 1)
 						banker.printAllCard();
 						player.printAllCard(false);
 
+						// Если мы уже взяли доп. карту откроется доп. метод
 						if (!isHit)
 							wprintf(L"\n Your turn! \n1. Stand \n2. Hit\n");
 						else
@@ -135,8 +154,9 @@ void GameDesk::startTheGame() {
 
 							wprintf(L"\n ==== LOGS ==== \n");
 							bool flagTake = true;
+							// Диллер набирает карты в колоду ( по европейскому стилю, если у него меньше 17 то он берет еще )
 							while (flagTake) {
-								if (summeryBanker < 17) {
+								if (summeryBanker < 17 && banker.getCountOfCard() < 5) {
 									randDeck = rand() % 4;
 									banker.takeACard(decks[randDeck]);
 								}
@@ -146,18 +166,21 @@ void GameDesk::startTheGame() {
 							}
 							wprintf(L"\n ==== END LOGS ==== \n");
 
-
+							// Выводим всю информацию перед финальным расчетом
 							wprintf(L"\nDecks: ");
 							wprintf(L" [%i] [%i] [%i] [%i]",
 								decks[0].getCountOfCard(),
 								decks[1].getCountOfCard(),
 								decks[2].getCountOfCard(),
 								decks[3].getCountOfCard());
+
 							banker.printAllCard();
 							player.printAllCard(true);
 
+							// Передаем false т.к. нам уже нужно выбирать 1 или 11 (если есть А)
 							summeryPlayer = player.sumOfCard(false);
 
+							// Выбрасываем Exceptions если банкер наберет больше 21
 							if (summeryBanker > 21) {
 								throw 2;
 							}
@@ -180,6 +203,7 @@ void GameDesk::startTheGame() {
 
 						}
 						else if (answer == 2) {
+							// Диллер выдает карту из рандомной калоды
 							wprintf(L"\n ==== LOGS ==== \n");
 							randDeck = rand() % 4;
 							player.getTheCard(banker.issueACard(decks[randDeck]));
@@ -187,8 +211,9 @@ void GameDesk::startTheGame() {
 							wprintf(L"\n ==== END LOGS ==== \n");
 						}
 						else if (answer == 3) {
+							// Удвоение ставки если у нас достаточно средств
 							if (isHit) {
-								if (player.getMoney() >= bet * 2) {
+								if (player.getMoney() >= bet) {
 									player.placeABet(bet);
 
 									bet = bet * 2;
@@ -199,13 +224,17 @@ void GameDesk::startTheGame() {
 							}
 							else wprintf(L"\n == Wrong answer. Try again\n");
 						}
-						else wprintf(L"\n == Wrong answer. Try again\n");
+						else {
+							wprintf(L"\n == Wrong answer. Try again\n");
+
+							std::cin.clear(); //clear bad input flag
+							std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //discard input
+						}
 					}
 					catch (int i) {
 						if (i == 1) {
 							flagOfProces = false;
-							int sum = player.sumOfCard(true);
-							wprintf(L"\n You've lost: you have too much ((Your)%i > 21), Bet: %.2f. Final balance: %.2f", sum, bet, player.getMoney());
+							wprintf(L"\n You've lost: you have too much ((Your)%i > 21), Bet: %.2f. Final balance: %.2f", summeryPlayer, bet, player.getMoney());
 							continue;
 						}
 						else if (i == 2) {
@@ -228,6 +257,9 @@ void GameDesk::startTheGame() {
 			}
 			else {
 				wprintf(L"\n Wrong answer, try again! \n");
+
+				std::cin.clear(); //clear bad input flag
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //discard input
 			}
 		}
 		else {

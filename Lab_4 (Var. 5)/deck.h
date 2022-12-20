@@ -3,17 +3,19 @@
 
 class Deck {
 public:
-
+	// == Конструкторы и деструкторы ==
 	Deck();
 
 	~Deck();
 
-	int getCountOfCard();
-	
+	// Геттер
+	int getCountOfCard() const;
+
+	// == Методы ==
 	void fillDeck();
 	void shuffleDeck();
 	void newDeck();
-	
+
 	Card getCard();
 
 private:

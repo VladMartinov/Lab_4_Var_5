@@ -3,6 +3,8 @@
 
 using namespace std;
 
+
+// Конструкторы копирования, методы копирования, обычные констркукторы
 Player::Player() {
 	_money = 100;
 	_cards = new Card[5];
@@ -37,7 +39,7 @@ void Player::getTheCard(Card card) {
 	if (_countOfCard < 5) {
 		_cards[_countOfCard] = card;
 		wprintf(L"\n (Player) The card was taken: ");
-		friendPrintCard(_cards[_countOfCard]);
+		cout << _cards[_countOfCard];
 		_countOfCard++;
 	}
 	else {
@@ -46,23 +48,24 @@ void Player::getTheCard(Card card) {
 }
 
 void Player::setMoney(double money) { _money = money; }
-double Player::getMoney () { return _money; }
+double Player::getMoney() { return _money; }
 
+// Добавление карты в нашу колоду
 void Player::setNewCards() {
 	delete[] _cards;
-	Card *newCards = new Card[5];
+	Card* newCards = new Card[5];
 
 	_cards = newCards;
 	_countOfCard = 0;
 
 }
 
-double Player::placeABet( double bet ) {
+double Player::placeABet(double bet) {
 	if (bet > _money) {
 		wprintf(L"\nInsufficient funds");
 		return 0;
 	}
-	
+
 	_money -= bet;
 	return bet;
 }
@@ -70,20 +73,21 @@ double Player::placeABet( double bet ) {
 void Player::printAllCard(bool isStand = false) {
 	wprintf(L"\n%8Player:");
 	for (int i = 0; i < _countOfCard; i++) {
-		friendPrintCard(_cards[i]);
+		cout << _cards[i];
 	}
 	if (!isStand) {
 		wprintf(L"  ??");
 	}
 }
 
+// Сумма всех очков кард в нашем наборе
 int Player::sumOfCard(bool isOne = false) {
 	int sum = 0;
 
 	for (int i = 0; i < _countOfCard; i++) {
 		if (stoi(_cards[i].getScoreCard()) != 10) {
 			if (stoi(_cards[i].getScoreCard()) == 11) {
-				if(isOne){
+				if (isOne) {
 					sum += 1;
 				}
 				else {
